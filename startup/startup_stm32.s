@@ -182,7 +182,7 @@ g_pfnVectors:
   .word	SDMMC1_IRQHandler            			/* SDMMC1 global interrupt                                             */
   .word	TIM5_IRQHandler              			/* TIM5 global interrupt                                               */
   .word	SPI3_IRQHandler              			/* SPI3 global interrupt                                               */
-  .word	0                            			/* Reserved                                                            */
+  .word	UART4_IRQHandler                        /* UART4 global interrupt                                                            */
   .word	UART5_IRQHandler             			/* UART5 global interrupt                                              */
   .word	TIM6_DAC_IRQHandler          			/* TIM6 global interrupt, DAC1 and DAC2 underrun error interrupt       */
   .word	TIM7_IRQHandler              			/* TIM7 global interrupt                                               */
@@ -405,6 +405,9 @@ g_pfnVectors:
 	.weak	SPI3_IRQHandler
 	.thumb_set SPI3_IRQHandler,Default_Handler
 	
+	.weak	UART4_IRQHandler
+	.thumb_set UART5_IRQHandler,Default_Handler
+
 	.weak	UART5_IRQHandler
 	.thumb_set UART5_IRQHandler,Default_Handler
 	

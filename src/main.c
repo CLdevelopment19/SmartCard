@@ -8,12 +8,41 @@
   ******************************************************************************
 */
 
+#include "main.h"
+#include "hardwareConfig.h"
+#include "debug_csl.h"
+#include <string.h>
+/*******************************************************************************************************/
 
-#include "stm32f7xx.h"
-			
+/* Locales variables */
+
+/*******************************************************************************************************/
 
 int main(void)
 {
+	if(!SystemHardwareGlobalConfig())
+	{
+		GPIO_LED1_OFF;
+		GPIO_LED2_OFF;
+	}else
+	{
+		//GPIO_LED1_ON;
+		//GPIO_LED2_ON;
+	}
 
-	for(;;);
+	InitObjectConsole();
+	HAL_TIM_Base_Start_IT(&Tim3_Timeout_handle);
+
+	DEBUG_ERROR("Test\r\n");
+	DEBUG_LOG("Test\r\n");
+	DEBUG_INFO("Test\r\n");
+	DEBUG_ERROR("END Test\r\n");
+
+	while(1){
+
+	}
 }
+/*******************************************************************************************************/
+
+
+/*******************************************************************************************************/
