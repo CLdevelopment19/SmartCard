@@ -27,11 +27,16 @@
 // UART4 Debug (PD0 : RX/ PD1 : TX)
 #define GPIO_UART4_RX	GPIO_PIN_0
 #define GPIO_UART4_TX	GPIO_PIN_1
+// I2C (Adccelerometer KXTJ3-1057)
+#define GPIO_I2C2_SCL	GPIO_PIN_10	// PB10
+#define GPIO_I2C2_SDA	GPIO_PIN_11	// PB11
+#define GPIO_KXTJ3_INT	GPIO_PIN_13	// PE13
 
 
 /* Public variable */
 extern TIM_HandleTypeDef    Tim3_Timeout_handle;
 extern UART_HandleTypeDef   Uart4_DBG_Csl_handle;
+extern I2C_HandleTypeDef   	I2C2_handle;
 /*******************************************************************************************************/
 
 /* Private variables */
@@ -43,6 +48,7 @@ e_bool SystemClock_Config			(void);
 e_bool SystemGPIO_Config			(void);
 e_bool SystemTimer3_Config			(void);
 e_bool SystemUart4_Config			(void);
+e_bool SystemI2C2_Config			(void);
 /*******************************************************************************************************/
 
 #endif /* HARDWARECONFIG_H_ */

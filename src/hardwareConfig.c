@@ -6,11 +6,13 @@
  */
 
 #include "hardwareConfig.h"
+#include "KXTJ3_device.h"
 /*******************************************************************************************************/
 
 /* Public variable */
-TIM_HandleTypeDef    Tim3_Timeout_handle;
-UART_HandleTypeDef   Uart4_DBG_Csl_handle;
+TIM_HandleTypeDef    	Tim3_Timeout_handle;
+UART_HandleTypeDef   	Uart4_DBG_Csl_handle;
+I2C_HandleTypeDef   	I2C2_handle;
 /*******************************************************************************************************/
 
 /* Private functions */
@@ -56,6 +58,12 @@ e_bool SystemHardwareGlobalConfig(void)
 	if(!SystemUart4_Config())
 	{
 		// TO DO ERROR MANAGMENT
+		return FALSE;
+	}
+
+	/* I2C2 Accelerometer device */
+	if(!SystemI2C2_Config())
+	{
 		return FALSE;
 	}
 
@@ -253,6 +261,51 @@ e_bool SystemUart4_Config			(void)
 	//__HAL_UART_ENABLE_IT(&Uart4_DBG_Csl_handle, UART_IT_IDLE);
 	HAL_NVIC_SetPriority(UART4_IRQn, 1, 0);
 	HAL_NVIC_EnableIRQ(UART4_IRQn);
+
+	return TRUE;
+}
+/*******************************************************************************************************/
+
+e_bool SystemI2C2_Config			(void)
+{
+	GPIO_InitTypeDef GPIO_InitStruct;
+
+	__HAL_RCC_GPIOB_CLK_ENABLE();
+	__HAL_RCC_GPIOE_CLK_ENABLE();
+
+	GPIO_InitStruct.Pin 	= GPIO_I2C2_SCL | GPIO_I2C2_SDA;
+	GPIO_InitStruct.Mode 	= GPIO_MODE_AF_OD;
+	GPIO_InitStruct.Alternate = GPIO_AF4_I2C2;
+	GPIO_InitStruct.Pull 	= GPIO_PULLUP;
+	GPIO_InitStruct.Speed 	= GPIO_SPEED_FREQ_HIGH;
+	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+	GPIO_InitStruct.Pin 	= GPIO_KXTJ3_INT;
+	GPIO_InitStruct.Mode 	= GPIO_MODE_IT_RISING;
+	GPIO_InitStruct.Pull 	= GPIO_NOPULL;
+	HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+	I2C2_handle.Instance = I2C2;
+	I2C2_handle.Init.Timing = 0x50330909;		// 400KHz
+	I2C2_handle.Init.OwnAddress1 = KXTJ3_ADDRESS;
+	I2C2_handle.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+	I2C2_handle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+	I2C2_handle.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+	I2C2_handle.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+	I2C2_handle.Init.OwnAddress2     = 0xFF;
+
+	__I2C2_CLK_ENABLE();
+
+	if(HAL_I2C_Init(&I2C2_handle) != HAL_OK)
+	{
+		return FALSE;
+	}
+
+	HAL_NVIC_SetPriority(I2C2_ER_IRQn, 2, 0);
+	HAL_NVIC_EnableIRQ(I2C2_ER_IRQn);
+	HAL_NVIC_SetPriority(I2C2_EV_IRQn, 2, 0);
+	HAL_NVIC_EnableIRQ(I2C2_EV_IRQn);
+	//HAL_I2CEx_ConfigAnalogFilter(&I2C2_Accelerometer_handle,I2C_ANALOGFILTER_ENABLE);
 
 	return TRUE;
 }

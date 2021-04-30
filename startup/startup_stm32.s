@@ -163,8 +163,8 @@ g_pfnVectors:
   .word	TIM4_IRQHandler              			/* TIM4 global interrupt                                               */
   .word	I2C1_EV_IRQHandler           			/* I2C1 event interrupt                                                */
   .word	I2C1_ER_IRQHandler           			/* I2C1 error interrupt                                                */
-  .word	0                            			/* Reserved                                                            */
-  .word	0                            			/* Reserved                                                            */
+  .word	I2C2_EV_IRQHandler                            			/* Reserved                                                            */
+  .word	I2C2_ER_IRQHandler                            			/* Reserved                                                            */
   .word	SPI1_IRQHandler              			/* SPI1 global interrupt                                               */
   .word	SPI2_IRQHandler              			/* SPI2 global interrupt                                               */
   .word	USART1_IRQHandler            			/* USART1 global interrupt                                             */
@@ -354,6 +354,12 @@ g_pfnVectors:
 	.weak	I2C1_ER_IRQHandler
 	.thumb_set I2C1_ER_IRQHandler,Default_Handler
 	
+	.weak	I2C2_EV_IRQHandler
+	.thumb_set I2C2_EV_IRQHandler,Default_Handler
+
+	.weak	I2C2_ER_IRQHandler
+	.thumb_set I2C2_ER_IRQHandler,Default_Handler
+
 	.weak	SPI1_IRQHandler
 	.thumb_set SPI1_IRQHandler,Default_Handler
 	
