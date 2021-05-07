@@ -69,7 +69,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 	if(!delay_timeout_csl)
 	{
-		//GPIO_LED1_TOGGLE;
 		(*trig_timeout_csl)();
 	}
 
@@ -99,6 +98,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *UartHandle)
 		(*tx_done_handler_csl)();
 	}
 }
+/*******************************************************************************************************/
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
 {
@@ -107,8 +107,16 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
 		(*rx_done_handler_csl)();
 	}
 }
+/*******************************************************************************************************/
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *UartHandle)
 {
+	// TO DO
+}
+/*******************************************************************************************************/
+
+__weak void DMA2_Stream0_IRQHandler(void)
+{
 
 }
+/*******************************************************************************************************/

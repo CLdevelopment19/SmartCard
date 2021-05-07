@@ -12,12 +12,14 @@
 #include "hardwareConfig.h"
 #include "debug_csl.h"
 #include "KXTJ3_device.h"
+#include "analog_device.h"
 #include <string.h>
 /*******************************************************************************************************/
 
 /* Locales variables */
 uint8_t ext_flag_test = 0;
 static e_bool KXTJ3_ready = FALSE;
+uint8_t test[6] = {0};
 /*******************************************************************************************************/
 
 int main(void)
@@ -43,40 +45,22 @@ int main(void)
 	Ksxj3_checkConnexion();
 	//Ksxj3_checkFunctionality();
 
-	/*while(HAL_I2C_Master_Transmit(&I2C2_Accelerometer_handle, (uint16_t)KXTJ3_ADDRESS, (uint8_t*)0x35, 1, 10000)!= HAL_OK)
-	{
-		if (HAL_I2C_GetError(&I2C2_Accelerometer_handle) != HAL_I2C_ERROR_AF)
-		{
+	/*KXTJ3_ready = FALSE;
+	do{}while(!KXTJ3_ready);*/
 
-		}
-	}*/
-
-	/*while(HAL_I2C_Master_Transmit_IT(&I2C2_handle, (uint16_t)0x1E, (uint8_t*)&aTxBuffer, 1)!= HAL_OK)
-	{
-		if (HAL_I2C_GetError(&I2C2_handle) != HAL_I2C_ERROR_AF)
-		{
-
-		}
-	}
-
-	while(HAL_I2C_Master_Receive_IT(&I2C2_handle, (uint16_t)0x1F, &aRxBuffer, 1) != HAL_OK)
-	  {
-
-	    if (HAL_I2C_GetError(&I2C2_handle) != HAL_I2C_ERROR_AF)
-	    {
-
-	    }
-	  }*/
+	//HAL_I2C_Mem_Read(&I2C2_handle, KXTJ3_ADDRESS+1, 0x06, 1, test, 6, 1000);
 
 	ext_flag_test = 0;
+
+	StartConversionADC(&ADC1_handle);
 
 	while(1){
 
 		if(ext_flag_test)
 		{
 			ext_flag_test = 0;
-			Ksxj3_GetAngle(Y_ANGLE);
-			//Ksxj3_GetZAxis();
+			//Ksxj3_GetAngle(Y_ANGLE);
+			//Ksxj3_GetXYZAxis_burstMode();
 		}
 	}
 }

@@ -46,6 +46,15 @@ void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *I2cHandle)
 		Manage_i2c2_FSM((s_i2c_object*)prv_image_i2cObject);
 	}
 }
+
+void HAL_I2C_MemRxCpltCallback	(I2C_HandleTypeDef *I2cHandle)
+{
+	if(I2cHandle->Instance == I2C2_handle.Instance)
+	{
+		prv_flag_i2c2_receive = SET;
+		Manage_i2c2_FSM((s_i2c_object*)prv_image_i2cObject);
+	}
+}
 //*****************************************************************************************************************************************//
 
 e_bool Manage_i2c2_FSM (volatile s_i2c_object* i2c)
@@ -95,6 +104,23 @@ e_bool Manage_i2c2_FSM (volatile s_i2c_object* i2c)
 				i2c->status = ERR;
 		}
 	break;
+	case BURST_READ:
+		if(prv_flag_i2c2_transmit)
+		{
+			prv_flag_i2c2_transmit = RESET;
+			iteration_failed = 0;
+			if(HAL_I2C_Mem_Read_IT(&I2C2_handle, i2c->adr+1, i2c->dta_tx[0], 1, (uint8_t *)i2c->dta_rx, i2c->size_rx) != HAL_OK)
+			{
+				return FALSE;
+			}
+			i2c->status = DATA_AVAILABLE;
+		}else
+		{
+			i2c->status = BURST_READ;
+			if((iteration_failed++)==MAX_ITERATION_FAILED)
+				i2c->status = ERR;
+		}
+		break;
 	case DATA_AVAILABLE:
 		if(prv_flag_i2c2_receive)
 		{

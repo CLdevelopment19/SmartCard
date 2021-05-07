@@ -21,6 +21,7 @@ typedef enum
 	READY_WRITE = 0,
 	READY_READ,
 	DATA_AVAILABLE,
+	BURST_READ,
 	ERR,
 	IDLE,
 }e_i2c_status;

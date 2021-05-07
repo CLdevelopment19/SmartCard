@@ -22,7 +22,7 @@ typedef enum
 typedef struct
 {
 	e_KindOfErr kindof;
-	void (*CallBack)(void);
+	void (*CallBack)(uint8_t num_periph);
 }errorObj_t;
 /*******************************************************************************************************/
 

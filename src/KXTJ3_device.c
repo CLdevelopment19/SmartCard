@@ -211,6 +211,30 @@ void Ksxj3_GetXYZAxis (void)
 		LoadI2CObject(&Ksxj3_object.i2c_obj, ManageDataKSXJ3);
 	}
 }
+
+void Ksxj3_GetXYZAxis_burstMode (void)
+{
+	static uint8_t inc = 0;
+	static uint8_t buf_tx[1];
+	static uint8_t buf_rx[6];
+
+	buf_tx[0] = KXTJ3_XOUT_L;
+
+	Ksxj3_object.i2c_obj.dta_tx = buf_tx;
+	Ksxj3_object.i2c_obj.dta_rx = buf_rx;
+
+	Ksxj3_object.i2c_obj.size_tx = SIZE_ARRAY(buf_tx);
+	Ksxj3_object.i2c_obj.size_rx = SIZE_ARRAY(buf_rx);
+
+	Ksxj3_object.i2c_obj.op = READ_OP;
+
+	Ksxj3_object.i2c_obj.status = BURST_READ;
+
+	operationToDecode = X_Y_Z_ACC_BURST;
+
+	LoadI2CObject(&Ksxj3_object.i2c_obj, ManageDataKSXJ3);
+
+}
 //*****************************************************************************************************************************************//
 
 void Ksxj3_GetAngle (e_operationToDecode angle)
@@ -360,6 +384,12 @@ void ManageDataKSXJ3 (uint8_t *data)
 		Ksxj3_GetAngle(Z_ANGLE);
 		break;
 	case X_Y_Z_ANGLE:
+		break;
+	case X_Y_Z_ACC_BURST:
+		Ksxj3_object.ksxj3_accel_data.x = data[1];
+		Ksxj3_object.ksxj3_accel_data.y = data[3];
+		Ksxj3_object.ksxj3_accel_data.z = data[5];
+		DisplayDataKsxj3(PREFIXE_Z_ACCELEROMETER, Ksxj3_object.ksxj3_accel_data.z, SUFFIXE_ACCELEROMETER);
 		break;
 	default :
 		break;

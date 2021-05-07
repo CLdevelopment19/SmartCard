@@ -63,6 +63,7 @@ typedef enum
 	Y_ANGLE		= 7,
 	Z_ANGLE		= 8,
 	X_Y_Z_ANGLE	= 9,
+	X_Y_Z_ACC_BURST = 10,
 	IGNORE
 }e_operationToDecode;
 
