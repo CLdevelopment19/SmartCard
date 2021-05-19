@@ -120,3 +120,14 @@ __weak void DMA2_Stream0_IRQHandler(void)
 
 }
 /*******************************************************************************************************/
+
+__weak void CAN1_RX0_IRQHandler(void)
+{
+	HAL_CAN_IRQHandler(&CAN1_handle);
+}
+/*******************************************************************************************************/
+
+__weak void CAN1_TX_IRQHandler(void)
+{
+	HAL_CAN_IRQHandler(&CAN1_handle);
+}

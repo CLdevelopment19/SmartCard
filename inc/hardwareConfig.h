@@ -33,6 +33,9 @@
 #define GPIO_KXTJ3_INT	GPIO_PIN_13	// PE13
 // ADC (POTENTIOMETER)
 #define GPIO_ADC_POT	GPIO_PIN_1
+// CAN 1
+#define GPIO_CAN1_RX	GPIO_PIN_8
+#define GPIO_CAN1_TX	GPIO_PIN_9
 
 
 /* Public variable */
@@ -40,6 +43,7 @@ extern TIM_HandleTypeDef    Tim3_Timeout_handle;
 extern UART_HandleTypeDef   Uart4_DBG_Csl_handle;
 extern I2C_HandleTypeDef   	I2C2_handle;
 extern ADC_HandleTypeDef   	ADC1_handle;
+extern CAN_HandleTypeDef	CAN1_handle;
 /*******************************************************************************************************/
 
 /* Private variables */
@@ -53,6 +57,7 @@ e_bool SystemTimer3_Config			(void);
 e_bool SystemUart4_Config			(void);
 e_bool SystemI2C2_Config			(void);
 e_bool SystemADC_Config				(void);
+e_bool SystemCAN1_Config			(void);
 /*******************************************************************************************************/
 
 #endif /* HARDWARECONFIG_H_ */

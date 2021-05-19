@@ -14,6 +14,7 @@ TIM_HandleTypeDef    	Tim3_Timeout_handle;
 UART_HandleTypeDef   	Uart4_DBG_Csl_handle;
 I2C_HandleTypeDef   	I2C2_handle;
 ADC_HandleTypeDef   	ADC1_handle;
+CAN_HandleTypeDef		CAN1_handle;
 /*******************************************************************************************************/
 
 /* Private functions */
@@ -70,6 +71,12 @@ e_bool SystemHardwareGlobalConfig(void)
 
 	/* ADC1 POTENTIOMETER */
 	if(!SystemADC_Config())
+	{
+		return FALSE;
+	}
+
+	/* CAN1 Bus */
+	if(!SystemCAN1_Config())
 	{
 		return FALSE;
 	}
@@ -393,6 +400,101 @@ e_bool SystemADC_Config				(void)
 
 	HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 10, 0);
 	HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
+
+	return TRUE;
+}
+/*******************************************************************************************************/
+
+/* CAN1 is connected to APB1 bus, here APB1 = HCLK/4 = 54MHz */
+e_bool SystemCAN1_Config			(void)
+{
+
+	GPIO_InitTypeDef GPIO_InitStruct;
+	GPIO_InitStruct.Pin 	= GPIO_CAN1_TX | GPIO_CAN1_RX;
+	GPIO_InitStruct.Mode 	= GPIO_MODE_AF_PP;
+	GPIO_InitStruct.Alternate = GPIO_AF9_CAN1;
+	GPIO_InitStruct.Pull 	= GPIO_NOPULL;
+	GPIO_InitStruct.Speed 	= GPIO_SPEED_FREQ_MEDIUM;
+	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+	CAN1_handle.Instance = CAN1;
+	CAN1_handle.Init.Mode = CAN_MODE_NORMAL;
+	CAN1_handle.Init.AutoBusOff = DISABLE;
+	/* AutoRetransmission
+	 * DISABLE: Regardless of the sending result (success, error or loss of arbitration), the message is sent only once
+	 * ENABLE: CAN hardware will automatically resend the message until it is successfully sent according to the CAN standard */
+	CAN1_handle.Init.AutoRetransmission = ENABLE;
+	/* Automatic wake-up mode
+	 * This bit controls the behavior of the CAN hardware when a message is received in sleep mode */
+	CAN1_handle.Init.AutoWakeUp = DISABLE;
+	/* ReceiveFifoLocked
+	 * DISABLE: The receive FIFO will not be locked after overflow. After the receive FIFO is full, the next incoming message will overwrite the previous one
+	 * ENABLE: The receive FIFO is locked after overflow. After the receive FIFO is full, the next incoming message will be discarded*/
+	CAN1_handle.Init.ReceiveFifoLocked = DISABLE;
+	CAN1_handle.Init.TimeTriggeredMode = DISABLE;
+	/* Transmit Fifo Priority
+	 * DISABLE: The priority is determined by the message identifier
+	 * ENABLE: Priority is determined by the order of requests (chronological order)*/
+	CAN1_handle.Init.TransmitFifoPriority = DISABLE;
+	// Sample point at 87.5%
+	/* BITRATE = (CANCLOCK/Prescaler)/(1+BS1+BS2)
+	 * Here BITRATE = 250000	 */
+	CAN1_handle.Init.SyncJumpWidth = CAN_SJW_1TQ;
+	CAN1_handle.Init.TimeSeg1 = CAN_BS1_10TQ;
+	CAN1_handle.Init.TimeSeg2 = CAN_BS2_1TQ;
+	CAN1_handle.Init.Prescaler = 18;
+
+	__CAN1_CLK_ENABLE();
+
+	if (HAL_CAN_Init(&CAN1_handle) != HAL_OK)
+	{
+		/* Initialization Error */
+		return FALSE;
+	}
+
+	/* STEP 2 : Configure the CAN Filter */
+	CAN_FilterTypeDef  sFilterConfig;
+
+	sFilterConfig.FilterBank = 0;
+	/* Filter Mode
+	 * Mask mode: In the mask mode, the identifier register is associated with the mask register to indicate which bits of the identifier "must match" and which bits are "don't care"
+	 * List mode: In the identifier list mode, the mask register is used as an identifier register. At this time, an identifier and a mask will not be defined, but two identifiers will be specified */
+	sFilterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
+	sFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT;
+	sFilterConfig.FilterIdHigh = 0x0000;			//  StdId needs to be shifted to the left by 5 bits to fit into the upper 16 bits of CAN_FxR1
+	sFilterConfig.FilterIdLow = 0x0000 | CAN_ID_STD;
+	sFilterConfig.FilterMaskIdHigh = 0x0000<<5;		// StdId needs to be shifted to the left by 5 bits to fit into the upper 16 bits of CAN_FxR1
+	sFilterConfig.FilterMaskIdLow = 0x0000;
+	sFilterConfig.FilterFIFOAssignment = CAN_RX_FIFO0 /*| CAN_RX_FIFO1*/;
+	sFilterConfig.FilterActivation = ENABLE;
+
+	if (HAL_CAN_ConfigFilter(&CAN1_handle, &sFilterConfig) != HAL_OK)
+	{
+		/* Filter configuration Error */
+		return FALSE;
+	}
+
+	HAL_NVIC_SetPriority(CAN1_RX0_IRQn, 7, 0);
+	//HAL_NVIC_SetPriority(CAN1_RX1_IRQn, 2, 0);
+	HAL_NVIC_EnableIRQ(CAN1_RX0_IRQn);
+	//HAL_NVIC_EnableIRQ(CAN1_RX1_IRQn);
+	if (HAL_CAN_ActivateNotification(&CAN1_handle, CAN_IT_RX_FIFO0_MSG_PENDING /*| CAN_IT_RX_FIFO1_MSG_PENDING*/) != HAL_OK)
+	{
+		 return FALSE;
+	}
+
+	HAL_NVIC_SetPriority(CAN1_TX_IRQn, 7, 0);
+	HAL_NVIC_EnableIRQ(CAN1_TX_IRQn);
+	if (HAL_CAN_ActivateNotification(&CAN1_handle,CAN_IT_TX_MAILBOX_EMPTY) != HAL_OK)
+	{
+		 return FALSE;
+	}
+
+	/* STEP 3 : Stop the CAN peripheral*/
+	if (HAL_CAN_Start(&CAN1_handle) != HAL_OK)
+	{
+		return FALSE;
+	}
 
 	return TRUE;
 }

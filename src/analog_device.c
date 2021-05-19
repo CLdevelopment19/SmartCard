@@ -25,7 +25,7 @@ void DMA2_Stream0_IRQHandler(void)
 void HAL_ADC_ConvCpltCallback (ADC_HandleTypeDef* AdcHandle)
 {
 	unsigned long tmp = 0;
-	GPIO_LED1_TOGGLE;
+
 	for(int i = 0; i < NUM_SAMPLE_GET; i++){
 		tmp = tmp + analogDevice_obj.sample[i];
 	}

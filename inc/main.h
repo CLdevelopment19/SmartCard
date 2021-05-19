@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include "stm32f7xx.h"
+/*******************************************************************************************************/
 
 /* Constantes */
 #define SIZE_ARRAY(tab)						(sizeof(tab)/sizeof(tab[0]))
